@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Xe3DjaGO/hZ65rTLCof1ST3l/oF5AWD1iy/2LEc27CVDBQOBwqiCKAKjnxDImKJCFVon+cgg+b/THasNFtuuE2Z6kSxfUK/e/MK5et0h7PkEEBnrvt197RQqyRtcUpMVn/mbq5Ol6iSRjSZpklSBEMAIWerpju28u+Ch/oAgTN5qjOj+QBDk6tiKUPGR50M4sBdQOIrLd3+vhp3L+1Ec/Ir2JTg2C6pyMoPeuw2S6bYAP6uA2P7Ya+0zOCaLuAi+4JZIeVrT3LJkBRUuH8pI2LECJbJt4lEifCB97xdEc1vK6G9sdkADx84H5+evknYsZIrfi2Op2Y0iwFTzSAvJxWXdLPQ8vYwC/IKPmYSA+OEaZbQLAagMBiyJ7VFX/zAjj48YGrwq0EsuEcUrezB7MalE+A0VGz9NHpbkf9hpq3sK7LxcNwdEm9J6cuidiNKSckxH0OdoVKQhDU0QjP7Wz6kQEVp8j7KbOOqVKaXDjcR1/TgS+9sWzp0u+On4SXrhP3z+JxsQXsG9zIICAvxQt+SfkrWQ8LqrKYDtwSPF1MUe6dYRyS4hZWPpp7eYl8iAx/WHLeXhhQqs3L/Fs7OpjR6JzAMi3xEqsruNZ8VaMGpDBecFCJ8sUuH5JKdMhlhlw+wsKHBfHVbT69N/SQiQHzuAxyT8NLHbpwhqCCAisbQ=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Die-Geschwister-Ein-Schauspiel-in-einem-Akt_2406
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
